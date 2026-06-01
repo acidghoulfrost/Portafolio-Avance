@@ -3,6 +3,7 @@ from decimal import Decimal
 
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.management import call_command
 from django.db import IntegrityError, transaction
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
@@ -259,3 +260,13 @@ class SeguridadYRecuperacionTests(TestCase):
             content_type='application/json',
         )
         self.assertEqual(response.status_code, 403)
+
+
+class SeedCategoriesTests(TestCase):
+    def test_carga_categorias_sin_duplicarlas(self):
+        call_command('seed_categories')
+        cantidad_inicial = Categoria.objects.count()
+        call_command('seed_categories')
+
+        self.assertEqual(cantidad_inicial, 6)
+        self.assertEqual(Categoria.objects.count(), cantidad_inicial)

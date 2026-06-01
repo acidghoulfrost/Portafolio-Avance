@@ -77,5 +77,5 @@ base PostgreSQL gratuita desde **New > Blueprint** en Render. Durante el alta,
 Render solicita `DJANGO_SUPERUSER_EMAIL` y `DJANGO_SUPERUSER_PASSWORD` sin
 guardarlos en Git. El usuario administrativo inicial es `admin`.
 
-El Blueprint fija Python `3.11.11`, ejecuta `bash ./build.sh` desde `Producto` y
-configura las cookies seguras para HTTPS.
+El Blueprint fija Python `3.11.11`, ejecuta `bash ./build.sh` desde `Producto`,
+carga las categorias iniciales y configura las cookies seguras para HTTPS.
