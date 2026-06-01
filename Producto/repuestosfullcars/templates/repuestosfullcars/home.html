@@ -1,24 +1,27 @@
 {% extends 'base.html' %}
 {% block title %}Catalogo | Full Cars{% endblock %}
 {% block content %}
-<section class="fc-hero fc-card p-5 mb-4 text-white overflow-hidden position-relative" style="background:linear-gradient(135deg,#013e3b,#02807c,#009199)">
+<section class="fc-hero fc-card p-5 mb-4 text-white overflow-hidden position-relative" style="background:linear-gradient(135deg,#013e3b,#02807c,#009199)" aria-labelledby="fc-hero-title">
   <div class="position-relative" style="z-index:1">
     <span class="text-uppercase small fw-bold opacity-75">Repuestos Full Cars</span>
-    <h1 class="display-5 fw-bold mt-2">Encuentra el repuesto<br>que tu vehiculo necesita</h1>
+    <h1 id="fc-hero-title" class="display-5 fw-bold mt-2">Encuentra el repuesto<br>que tu vehiculo necesita</h1>
     <p class="mb-0 opacity-75">Consulta disponibilidad real y registra tu compra en pocos pasos.</p>
   </div>
-  <i class="fas fa-gears position-absolute opacity-25" style="right:35px;bottom:-25px;font-size:10rem"></i>
+  <div class="fc-hero-gears" aria-hidden="true">
+    <i class="fas fa-cog fc-gear fc-gear-large"></i>
+    <i class="fas fa-cog fc-gear fc-gear-small"></i>
+  </div>
 </section>
 
 <section class="fc-card p-3 p-md-4 mb-4">
   <form class="row g-2 align-items-end" method="get">
     <div class="col-md-7">
-      <label class="form-label fw-bold">Buscar repuesto</label>
-      <input class="form-control" name="q" value="{{ busqueda }}" placeholder="Ej: bateria, filtro o pastillas de freno">
+      <label class="form-label fw-bold" for="fc-search-query">Buscar repuesto</label>
+      <input id="fc-search-query" class="form-control" name="q" value="{{ busqueda }}" placeholder="Ej: bateria, filtro o pastillas de freno">
     </div>
     <div class="col-md-3">
-      <label class="form-label fw-bold">Categoria</label>
-      <select class="form-select" name="categoria">
+      <label class="form-label fw-bold" for="fc-search-category">Categoria</label>
+      <select id="fc-search-category" class="form-select" name="categoria">
         <option value="">Todas las categorias</option>
         {% for categoria in categorias %}
           <option value="{{ categoria.id }}" {% if categoria_filtro == categoria.id|stringformat:'s' %}selected{% endif %}>{{ categoria.nombre_categoria }}</option>
@@ -45,8 +48,8 @@
     <div class="row g-3">
       {% for producto in cat_data.productos %}
       <div class="col-sm-6 col-lg-3">
-        <article class="fc-card h-100 overflow-hidden d-flex flex-column">
-          <a href="{% url 'producto_detalle' producto.id %}" class="d-block" style="height:165px;background:#edf7f6">
+        <article class="fc-card fc-product-card h-100 overflow-hidden d-flex flex-column">
+          <a href="{% url 'producto_detalle' producto.id %}" class="d-block" style="height:165px;background:#edf7f6" aria-label="Ver detalle de {{ producto.nombre_producto }}">
             {% if producto.imagen_url %}
               <img src="{{ producto.imagen_url.url }}" alt="{{ producto.nombre_producto }}" class="w-100 h-100" style="object-fit:cover">
             {% else %}
@@ -69,7 +72,7 @@
             <form method="post" action="{% url 'agregar_carrito' producto.id %}">
               {% csrf_token %}
               <input type="hidden" name="next" value="{{ request.get_full_path }}">
-              <button class="fc-btn w-100" {% if producto.stock == 0 %}disabled{% endif %}>
+              <button class="fc-btn w-100" type="submit" {% if producto.stock == 0 %}disabled{% endif %}>
                 <i class="fas fa-cart-plus me-1"></i>Agregar
               </button>
             </form>

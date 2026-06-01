@@ -154,6 +154,11 @@ class InventarioAdminTests(TestCase):
         self.client.post(url)
         self.assertFalse(Producto.objects.filter(id=self.producto.id).exists())
 
+    def test_cambiar_estado_requiere_post(self):
+        self.client.force_login(self.staff)
+        url = reverse('cambiar_estado_producto', args=[self.producto.id])
+        self.assertEqual(self.client.get(url).status_code, 405)
+
     def test_rechaza_archivo_que_no_es_imagen(self):
         self.client.force_login(self.staff)
         archivo = SimpleUploadedFile('archivo.txt', b'no es una imagen', content_type='text/plain')
@@ -261,6 +266,58 @@ class SeguridadYRecuperacionTests(TestCase):
         )
         self.assertEqual(response.status_code, 403)
 
+    def test_logout_requiere_post(self):
+        self.client.force_login(self.usuario)
+        self.assertEqual(self.client.get(reverse('logout')).status_code, 405)
+
+    def test_agregar_carrito_rechaza_post_sin_csrf(self):
+        categoria = Categoria.objects.create(nombre_categoria='Motor')
+        producto = Producto.objects.create(
+            categoria=categoria,
+            nombre_producto='Filtro seguro',
+            precio=Decimal('5000'),
+            stock=2,
+        )
+        client = Client(enforce_csrf_checks=True)
+        response = client.post(reverse('agregar_carrito', args=[producto.id]))
+        self.assertEqual(response.status_code, 403)
+
+    def test_carrito_rechaza_redireccion_externa(self):
+        categoria = Categoria.objects.create(nombre_categoria='Motor')
+        producto = Producto.objects.create(
+            categoria=categoria,
+            nombre_producto='Filtro interno',
+            precio=Decimal('5000'),
+            stock=2,
+        )
+        response = self.client.post(
+            reverse('agregar_carrito', args=[producto.id]),
+            {'next': 'https://sitio-no-confiable.example/phishing'},
+        )
+        self.assertRedirects(response, reverse('carrito'))
+
+    def test_categoria_inactiva_bloquea_agregado_directo(self):
+        categoria = Categoria.objects.create(nombre_categoria='Oculta', estado='inactivo')
+        producto = Producto.objects.create(
+            categoria=categoria,
+            nombre_producto='Producto oculto',
+            precio=Decimal('5000'),
+            stock=2,
+        )
+        response = self.client.post(reverse('agregar_carrito', args=[producto.id]))
+        self.assertEqual(response.status_code, 404)
+
+    def test_busqueda_escapa_html(self):
+        response = self.client.get(reverse('index'), {'q': '<script>alert(1)</script>'})
+        self.assertNotContains(response, '<script>alert(1)</script>', html=False)
+        self.assertContains(response, '&lt;script&gt;alert(1)&lt;/script&gt;', html=False)
+
+    def test_home_incluye_encabezados_defensivos(self):
+        response = self.client.get(reverse('index'))
+        self.assertEqual(response.headers['X-Frame-Options'], 'DENY')
+        self.assertEqual(response.headers['X-Content-Type-Options'], 'nosniff')
+        self.assertEqual(response.headers['Referrer-Policy'], 'same-origin')
+
 
 class SeedCategoriesTests(TestCase):
     def test_carga_categorias_sin_duplicarlas(self):
@@ -270,3 +327,36 @@ class SeedCategoriesTests(TestCase):
 
         self.assertEqual(cantidad_inicial, 6)
         self.assertEqual(Categoria.objects.count(), cantidad_inicial)
+
+
+class UsabilidadTests(TestCase):
+    def setUp(self):
+        categoria = Categoria.objects.create(nombre_categoria='Frenos')
+        Producto.objects.create(
+            categoria=categoria,
+            nombre_producto='Pastillas delanteras',
+            precio=Decimal('24990'),
+            stock=4,
+        )
+
+    def test_home_tiene_busqueda_etiquetada_y_engranajes_animables(self):
+        response = self.client.get(reverse('index'))
+        self.assertContains(response, 'href="#contenido-principal"')
+        self.assertContains(response, 'for="fc-search-query"')
+        self.assertContains(response, 'id="fc-search-query"')
+        self.assertContains(response, 'fc-gear-large')
+        self.assertContains(response, 'fc-gear-small')
+
+    def test_login_recupera_icono_y_control_de_contrasena(self):
+        response = self.client.get(reverse('login'))
+        self.assertContains(response, 'fc-auth-icon')
+        self.assertContains(response, 'id="fc-toggle-password"')
+        self.assertContains(response, 'aria-label="Mostrar contrasena"')
+        self.assertContains(response, 'autocomplete="current-password"')
+
+    def test_asistente_expone_atributos_accesibles(self):
+        response = self.client.get(reverse('index'))
+        self.assertContains(response, 'aria-controls="fc-chat"')
+        self.assertContains(response, 'aria-expanded="false"')
+        self.assertContains(response, 'role="log"')
+        self.assertContains(response, 'aria-live="polite"')

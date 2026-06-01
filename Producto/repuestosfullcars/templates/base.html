@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="{% static 'css/site.css' %}">
 </head>
 <body class="d-flex flex-column">
+  <a class="fc-skip-link" href="#contenido-principal">Saltar al contenido principal</a>
   {% include 'navbar.html' %}
 
   {% if messages %}
@@ -23,27 +24,28 @@
   </div>
   {% endif %}
 
-  <main class="fc-main container py-4 flex-grow-1">
+  <main id="contenido-principal" class="fc-main container py-4 flex-grow-1" tabindex="-1">
     {% block content %}{% endblock %}
   </main>
 
   {% include 'footer.html' %}
 
-  <button id="fc-chat-toggle" aria-label="Abrir asistente virtual">
-    <i class="fas fa-comments"></i>
+  <button id="fc-chat-toggle" type="button" aria-label="Abrir asistente virtual" aria-controls="fc-chat" aria-expanded="false">
+    <i class="fas fa-comments" aria-hidden="true"></i>
   </button>
-  <section id="fc-chat" aria-label="Asistente virtual">
+  <section id="fc-chat" aria-label="Asistente virtual" aria-hidden="true">
     <div class="fc-chat-head">
       <strong><i class="fas fa-robot me-2"></i>Asistente Full Cars</strong>
       <div class="small opacity-75">Consulta productos y disponibilidad</div>
     </div>
-    <div id="fc-chat-body" class="fc-chat-body">
+    <div id="fc-chat-body" class="fc-chat-body" role="log" aria-live="polite">
       <div class="fc-chat-msg fc-chat-bot">Hola. Preguntame por el stock de un repuesto.</div>
     </div>
     <form id="fc-chat-form" class="d-flex gap-2 border-top p-2">
       {% csrf_token %}
+      <label class="visually-hidden" for="fc-chat-input">Consulta para el asistente</label>
       <input id="fc-chat-input" class="form-control form-control-sm" placeholder="Ej: stock de bateria" required>
-      <button class="fc-btn py-1 px-3" type="submit"><i class="fas fa-paper-plane"></i></button>
+      <button class="fc-btn py-1 px-3" type="submit" aria-label="Enviar consulta"><i class="fas fa-paper-plane" aria-hidden="true"></i></button>
     </form>
   </section>
 
@@ -53,7 +55,13 @@
     const chatBody = document.getElementById('fc-chat-body');
     const chatForm = document.getElementById('fc-chat-form');
     const chatInput = document.getElementById('fc-chat-input');
-    document.getElementById('fc-chat-toggle').addEventListener('click', () => chat.classList.toggle('open'));
+    const chatToggle = document.getElementById('fc-chat-toggle');
+    chatToggle.addEventListener('click', () => {
+      const abierto = chat.classList.toggle('open');
+      chatToggle.setAttribute('aria-expanded', String(abierto));
+      chat.setAttribute('aria-hidden', String(!abierto));
+      if (abierto) chatInput.focus();
+    });
     function addChatMessage(text, kind) {
       const message = document.createElement('div');
       message.className = `fc-chat-msg fc-chat-${kind}`;

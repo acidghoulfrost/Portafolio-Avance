@@ -1,14 +1,15 @@
 <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm" style="background:linear-gradient(105deg,#014d4a,#02807c,#009199)">
   <div class="container">
     <a class="navbar-brand fw-bold" href="{% url 'index' %}">
-      <i class="fas fa-car me-2"></i>FULL CARS <small class="fw-normal opacity-75">REPUESTOS</small>
+      <span class="fc-brand-icon"><i class="fas fa-car" aria-hidden="true"></i></span>
+      <span>FULL CARS <small class="fw-normal opacity-75">REPUESTOS</small></span>
     </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#fc-navbar">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#fc-navbar" aria-controls="fc-navbar" aria-expanded="false" aria-label="Abrir navegacion">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div id="fc-navbar" class="collapse navbar-collapse">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item"><a class="nav-link" href="{% url 'index' %}">Catalogo</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'index' %}" {% if request.resolver_match.url_name == 'index' %}aria-current="page"{% endif %}>Catalogo</a></li>
         <li class="nav-item"><a class="nav-link" href="#fc-footer">Contacto</a></li>
         {% if user.is_authenticated %}
           <li class="nav-item"><a class="nav-link" href="{% url 'mis_compras' %}">Mis compras</a></li>

@@ -17,6 +17,19 @@ body {
 
 a { text-decoration: none; }
 
+.fc-skip-link {
+  background: var(--fc-deep);
+  border-radius: 0 0 8px 8px;
+  color: #fff;
+  left: 12px;
+  padding: .7rem 1rem;
+  position: fixed;
+  top: -60px;
+  transition: top .2s;
+  z-index: 2000;
+}
+.fc-skip-link:focus { color: #fff; top: 0; }
+
 .fc-main { min-height: 58vh; }
 .fc-page-title { color: var(--fc-deep); font-weight: 800; }
 .fc-muted { color: var(--fc-muted); }
@@ -25,6 +38,14 @@ a { text-decoration: none; }
   border: 1px solid rgba(2, 127, 123, .1);
   border-radius: 18px;
   box-shadow: 0 10px 28px rgba(1, 62, 59, .08);
+}
+.fc-product-card {
+  transition: box-shadow .25s ease, transform .25s ease;
+}
+.fc-product-card:hover,
+.fc-product-card:focus-within {
+  box-shadow: 0 16px 34px rgba(1, 62, 59, .16);
+  transform: translateY(-5px);
 }
 .fc-btn {
   background: linear-gradient(135deg, var(--fc-primary), var(--fc-secondary));
@@ -79,6 +100,69 @@ a { text-decoration: none; }
 .fc-badge-off { background: #fbe0e2; color: #a32631; }
 .fc-table { min-width: 760px; }
 .fc-table th { color: var(--fc-muted); font-size: .73rem; letter-spacing: .05rem; text-transform: uppercase; }
+.fc-brand-icon {
+  align-items: center;
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.22);
+  border-radius: 10px;
+  display: inline-flex;
+  height: 36px;
+  justify-content: center;
+  margin-right: 9px;
+  width: 36px;
+}
+.fc-hero-gears {
+  bottom: -38px;
+  height: 190px;
+  opacity: .22;
+  position: absolute;
+  right: 28px;
+  width: 210px;
+}
+.fc-gear { position: absolute; }
+.fc-gear-large {
+  animation: fc-spin 15s linear infinite;
+  bottom: 0;
+  font-size: 10rem;
+  right: 0;
+}
+.fc-gear-small {
+  animation: fc-spin-reverse 11s linear infinite;
+  font-size: 5rem;
+  left: 0;
+  top: 4px;
+}
+.fc-auth-icon {
+  align-items: center;
+  animation: fc-bounce 2.4s ease-in-out infinite;
+  background: linear-gradient(135deg, var(--fc-primary), var(--fc-secondary));
+  border-radius: 50%;
+  box-shadow: 0 8px 20px rgba(2, 127, 123, .25);
+  color: #fff;
+  display: inline-flex;
+  font-size: 2.1rem;
+  height: 82px;
+  justify-content: center;
+  width: 82px;
+}
+.fc-password-toggle {
+  border: 1px solid #cbdcdb;
+  color: var(--fc-primary);
+  min-width: 48px;
+}
+.fc-password-toggle:hover,
+.fc-password-toggle:focus { background: #edf8f8; color: var(--fc-deep); }
+
+@keyframes fc-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes fc-spin-reverse {
+  to { transform: rotate(-360deg); }
+}
+@keyframes fc-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
 
 #fc-chat-toggle {
   align-items: center;
@@ -116,8 +200,28 @@ a { text-decoration: none; }
 .fc-chat-bot { background: #eef8f7; color: #244; }
 .fc-chat-user { background: var(--fc-primary); color: #fff; margin-left: 22px; }
 
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--fc-accent);
+  outline-offset: 3px;
+}
+
 @media (max-width: 768px) {
   .fc-main { padding-left: 12px; padding-right: 12px; }
   .fc-hero { padding: 24px !important; }
   .fc-hero h1 { font-size: 2rem !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
 }

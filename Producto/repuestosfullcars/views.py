@@ -10,6 +10,7 @@ from django.db import transaction
 from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
 from .carrito import (
@@ -105,7 +106,12 @@ def cerrar_sesion(request):
 
 @require_POST
 def agregar_carrito(request, id):
-    producto = get_object_or_404(Producto, id=id, estado='activo')
+    producto = get_object_or_404(
+        Producto,
+        id=id,
+        estado='activo',
+        categoria__estado='activo',
+    )
     cantidad = _cantidad_post(request)
     carrito = obtener_carrito(request)
     cantidad_actual = int(carrito.get(str(producto.id), 0))
@@ -118,12 +124,17 @@ def agregar_carrito(request, id):
     else:
         agregar_producto_al_carrito(request, producto.id, cantidad)
         messages.success(request, f'{producto.nombre_producto} se agrego al carrito.')
-    return redirect(request.POST.get('next') or 'carrito')
+    return _redirect_siguiente(request)
 
 
 @require_POST
 def actualizar_carrito(request, id):
-    producto = get_object_or_404(Producto, id=id, estado='activo')
+    producto = get_object_or_404(
+        Producto,
+        id=id,
+        estado='activo',
+        categoria__estado='activo',
+    )
     cantidad = _cantidad_post(request)
     carrito = obtener_carrito(request)
     if cantidad > producto.stock:
@@ -173,6 +184,7 @@ def checkout(request):
                     producto = Producto.objects.select_for_update().get(
                         id=item['producto'].id,
                         estado='activo',
+                        categoria__estado='activo',
                     )
                     cantidad = item['cantidad']
                     if cantidad > producto.stock:
@@ -303,7 +315,10 @@ def _productos_mencionados(pregunta):
         if len(token.strip('.,;:!?')) > 2 and token not in ignorar
     }
     coincidencias = []
-    for producto in Producto.objects.filter(estado='activo').select_related('categoria'):
+    for producto in Producto.objects.filter(
+        estado='activo',
+        categoria__estado='activo',
+    ).select_related('categoria'):
         texto = _normalizar(
             f'{producto.nombre_producto} {producto.categoria.nombre_categoria}'
         )
@@ -343,3 +358,14 @@ def _responder_asistente(pregunta):
         'Puedo buscar repuestos, consultar disponibilidad y orientarte con '
         'el carrito. Intenta incluir el nombre del producto.'
     )
+
+
+def _redirect_siguiente(request):
+    siguiente = request.POST.get('next')
+    if siguiente and url_has_allowed_host_and_scheme(
+        siguiente,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
+        return redirect(siguiente)
+    return redirect('carrito')
