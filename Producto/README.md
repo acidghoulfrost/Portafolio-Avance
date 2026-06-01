@@ -49,6 +49,7 @@ Configurar estas variables de entorno:
 - `ALLOWED_HOSTS=.onrender.com`
 - `DATABASE_URL`
 - `BREVO_API_KEY`
+- `DEFAULT_FROM_EMAIL=repuestosfullcars20@gmail.com`
 - `SECURE_SSL_REDIRECT=True`
 - `SESSION_COOKIE_SECURE=True`
 - `CSRF_COOKIE_SECURE=True`
@@ -79,3 +80,10 @@ guardarlos en Git. El usuario administrativo inicial es `admin`.
 
 El Blueprint fija Python `3.11.11`, ejecuta `bash ./build.sh` desde `Producto`,
 carga las categorias iniciales y configura las cookies seguras para HTTPS.
+
+### Recuperacion de contrasena
+
+La recuperacion usa la API transaccional de Brevo. Para enviar enlaces reales,
+configurar `BREVO_API_KEY` en Render y verificar como remitente en Brevo el
+correo indicado en `DEFAULT_FROM_EMAIL`. Sin esa clave, el ambiente local usa
+la consola para facilitar las pruebas sin exponer secretos.

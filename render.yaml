@@ -26,6 +26,10 @@ services:
         fromDatabase:
           name: full-cars-db-pruebas
           property: connectionString
+      - key: BREVO_API_KEY
+        sync: false
+      - key: DEFAULT_FROM_EMAIL
+        value: repuestosfullcars20@gmail.com
       - key: SECURE_SSL_REDIRECT
         value: "True"
       - key: SESSION_COOKIE_SECURE
