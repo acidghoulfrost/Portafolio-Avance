@@ -1,0 +1,39 @@
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm" style="background:linear-gradient(105deg,#014d4a,#02807c,#009199)">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="{% url 'index' %}">
+      <i class="fas fa-car me-2"></i>FULL CARS <small class="fw-normal opacity-75">REPUESTOS</small>
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#fc-navbar">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div id="fc-navbar" class="collapse navbar-collapse">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item"><a class="nav-link" href="{% url 'index' %}">Catalogo</a></li>
+        <li class="nav-item"><a class="nav-link" href="#fc-footer">Contacto</a></li>
+        {% if user.is_authenticated %}
+          <li class="nav-item"><a class="nav-link" href="{% url 'mis_compras' %}">Mis compras</a></li>
+        {% endif %}
+        {% if user.is_staff %}
+          <li class="nav-item"><a class="nav-link" href="{% url 'admin_productos' %}">Inventario</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'admin_compras' %}">Ventas</a></li>
+        {% endif %}
+      </ul>
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <a class="btn btn-light btn-sm fw-bold text-success" href="{% url 'carrito' %}">
+          <i class="fas fa-shopping-cart me-1"></i>Carrito
+          {% if carrito_cantidad %}<span class="badge text-bg-warning ms-1">{{ carrito_cantidad }}</span>{% endif %}
+        </a>
+        {% if user.is_authenticated %}
+          <span class="text-white small"><i class="fas fa-user-circle me-1"></i>{{ user.username }}</span>
+          <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button class="btn btn-outline-light btn-sm" type="submit">Salir</button>
+          </form>
+        {% else %}
+          <a class="btn btn-outline-light btn-sm" href="{% url 'login' %}">Ingresar</a>
+          <a class="btn btn-light btn-sm fw-bold text-success" href="{% url 'registro' %}">Registrarse</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</nav>

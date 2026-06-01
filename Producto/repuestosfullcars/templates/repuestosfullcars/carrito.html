@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Carrito | Full Cars{% endblock %}
+{% block content %}
+<div class="mb-4">
+  <div class="fc-section-label">Tu seleccion</div>
+  <h1 class="fc-page-title">Carrito de compras</h1>
+</div>
+{% if items %}
+<div class="row g-4">
+  <div class="col-lg-8">
+    {% for item in items %}
+    <article class="fc-card p-3 mb-3">
+      <div class="row align-items-center g-3">
+        <div class="col-8 col-md-5">
+          <a class="fw-bold text-dark" href="{% url 'producto_detalle' item.producto.id %}">{{ item.producto.nombre_producto }}</a>
+          <div class="small fc-muted">{{ item.producto.categoria.nombre_categoria }}</div>
+        </div>
+        <div class="col-4 col-md-2 fw-bold text-success">${{ item.producto.precio|floatformat:0 }}</div>
+        <div class="col-8 col-md-3">
+          <form class="d-flex gap-2" method="post" action="{% url 'actualizar_carrito' item.producto.id %}">
+            {% csrf_token %}
+            <input class="form-control form-control-sm" type="number" min="1" max="{{ item.producto.stock }}" name="cantidad" value="{{ item.cantidad }}">
+            <button class="btn btn-outline-success btn-sm" aria-label="Actualizar"><i class="fas fa-rotate"></i></button>
+          </form>
+        </div>
+        <div class="col-4 col-md-2 text-end">
+          <form method="post" action="{% url 'quitar_carrito' item.producto.id %}">
+            {% csrf_token %}
+            <button class="btn btn-outline-danger btn-sm" aria-label="Quitar"><i class="fas fa-trash"></i></button>
+          </form>
+        </div>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  <div class="col-lg-4">
+    <aside class="fc-card p-4">
+      <div class="fc-section-label">Resumen</div>
+      <div class="d-flex justify-content-between mt-3"><span>Total</span><strong class="h4 text-success">${{ total|floatformat:0 }}</strong></div>
+      <a class="fc-btn d-block text-center mt-3" href="{% url 'checkout' %}">Continuar compra</a>
+      <a class="fc-btn-outline d-block text-center mt-2" href="{% url 'index' %}">Seguir buscando</a>
+    </aside>
+  </div>
+</div>
+{% else %}
+<section class="fc-card p-5 text-center">
+  <i class="fas fa-shopping-cart fa-3x text-success opacity-50 mb-3"></i>
+  <h2 class="h4 fc-page-title">Tu carrito esta vacio</h2>
+  <a class="fc-btn d-inline-block mt-2" href="{% url 'index' %}">Explorar repuestos</a>
+</section>
+{% endif %}
+{% endblock %}

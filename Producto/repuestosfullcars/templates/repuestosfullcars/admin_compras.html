@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Ventas | Full Cars{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-4">
+  <div>
+    <div class="fc-section-label">Administracion</div>
+    <h1 class="fc-page-title mb-0">Operaciones de compra</h1>
+  </div>
+  <a class="fc-btn-outline" href="{% url 'admin_productos' %}"><i class="fas fa-boxes me-1"></i>Volver al inventario</a>
+</div>
+<section class="fc-card p-3">
+  <div class="table-responsive">
+    <table class="table align-middle fc-table mb-0">
+      <thead><tr><th>Operacion</th><th>Cliente</th><th>Productos</th><th>Metodo</th><th>Estado</th><th>Total</th></tr></thead>
+      <tbody>
+      {% for compra in compras %}
+        <tr>
+          <td><strong>#{{ compra.id }}</strong><div class="small fc-muted">{{ compra.fecha_compra|date:'d/m/Y H:i' }}</div></td>
+          <td>{{ compra.usuario.username }}</td>
+          <td>{% for detalle in compra.detalles.all %}<div class="small">{{ detalle.cantidad }} x {{ detalle.nombre_producto }}</div>{% endfor %}</td>
+          <td>{{ compra.get_metodo_pago_display }}</td>
+          <td><span class="fc-badge {% if compra.estado_compra == 'confirmada' %}fc-badge-ok{% elif compra.estado_compra == 'cancelada' %}fc-badge-off{% else %}fc-badge-low{% endif %}">{{ compra.get_estado_compra_display }}</span></td>
+          <td class="fw-bold text-success">${{ compra.total|floatformat:0 }}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="6" class="text-center py-4 fc-muted">Todavia no existen compras registradas.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

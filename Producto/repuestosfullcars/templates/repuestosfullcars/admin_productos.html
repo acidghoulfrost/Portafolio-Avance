@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Inventario | Full Cars{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-4">
+  <div>
+    <div class="fc-section-label">Administracion</div>
+    <h1 class="fc-page-title mb-0">Gestion de inventario</h1>
+  </div>
+  <a class="fc-btn-outline" href="{% url 'admin_compras' %}"><i class="fas fa-receipt me-1"></i>Ver ventas</a>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <section class="fc-card p-3">
+      <div class="table-responsive">
+        <table class="table align-middle fc-table mb-0">
+          <thead><tr><th>Producto</th><th>Categoria</th><th>Stock</th><th>Estado</th><th>Acciones</th></tr></thead>
+          <tbody>
+          {% for producto in productos %}
+            <tr>
+              <td><strong>{{ producto.nombre_producto }}</strong><div class="small text-success">${{ producto.precio|floatformat:0 }}</div></td>
+              <td>{{ producto.categoria.nombre_categoria }}</td>
+              <td>{{ producto.stock }}</td>
+              <td><span class="fc-badge {% if producto.estado == 'activo' %}fc-badge-ok{% else %}fc-badge-off{% endif %}">{{ producto.get_estado_display }}</span></td>
+              <td>
+                <div class="d-flex gap-1">
+                  <a class="btn btn-outline-primary btn-sm" href="?edit={{ producto.id }}" aria-label="Editar"><i class="fas fa-pen"></i></a>
+                  <form method="post" action="{% url 'cambiar_estado_producto' producto.id %}">
+                    {% csrf_token %}
+                    <button class="btn btn-outline-warning btn-sm" aria-label="Cambiar estado"><i class="fas fa-power-off"></i></button>
+                  </form>
+                  <form method="post" action="{% url 'eliminar_producto' producto.id %}" onsubmit="return confirm('¿Eliminar este producto definitivamente?')">
+                    {% csrf_token %}
+                    <button class="btn btn-outline-danger btn-sm" aria-label="Eliminar"><i class="fas fa-trash"></i></button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="5" class="text-center py-4 fc-muted">No hay productos registrados.</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+  <div class="col-lg-5">
+    <section class="fc-card p-4">
+      <h2 class="h5 fc-page-title">{% if producto_edit %}Editar producto{% else %}Nuevo producto{% endif %}</h2>
+      <form class="fc-form mt-3" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% for field in form %}
+          <div class="mb-3">
+            <label class="form-label fw-bold small" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% for error in field.errors %}<div class="fc-field-error">{{ error }}</div>{% endfor %}
+          </div>
+        {% endfor %}
+        <div class="d-flex gap-2">
+          <button class="fc-btn flex-grow-1" type="submit"><i class="fas fa-save me-1"></i>Guardar</button>
+          {% if producto_edit %}<a class="fc-btn-outline" href="{% url 'admin_productos' %}">Cancelar</a>{% endif %}
+        </div>
+      </form>
+    </section>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}{{ producto.nombre_producto }} | Full Cars{% endblock %}
+{% block content %}
+<a class="small fw-bold text-success" href="{% url 'index' %}"><i class="fas fa-arrow-left me-1"></i>Volver al catalogo</a>
+<section class="fc-card overflow-hidden mt-3 mb-5">
+  <div class="row g-0">
+    <div class="col-md-5" style="min-height:330px;background:#edf7f6">
+      {% if producto.imagen_url %}
+        <img class="w-100 h-100" src="{{ producto.imagen_url.url }}" alt="{{ producto.nombre_producto }}" style="object-fit:cover;min-height:330px">
+      {% else %}
+        <div class="d-flex h-100 align-items-center justify-content-center text-success opacity-50"><i class="fas fa-wrench fa-5x"></i></div>
+      {% endif %}
+    </div>
+    <div class="col-md-7 p-4 p-lg-5">
+      <div class="fc-section-label">{{ producto.categoria.nombre_categoria }}</div>
+      <h1 class="fc-page-title mt-2">{{ producto.nombre_producto }}</h1>
+      <p class="fc-muted">{{ producto.descripcion|default:'Sin descripcion adicional.' }}</p>
+      <div class="display-6 fw-bold text-success mb-3">${{ producto.precio|floatformat:0 }}</div>
+      {% if producto.stock == 0 %}
+        <span class="fc-badge fc-badge-off mb-3">Sin stock</span>
+      {% elif producto.stock <= 5 %}
+        <span class="fc-badge fc-badge-low mb-3">Solo quedan {{ producto.stock }} unidades</span>
+      {% else %}
+        <span class="fc-badge fc-badge-ok mb-3">{{ producto.stock }} unidades disponibles</span>
+      {% endif %}
+      <form class="row g-2 mt-3" method="post" action="{% url 'agregar_carrito' producto.id %}">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{% url 'carrito' %}">
+        <div class="col-3"><input class="form-control" type="number" min="1" max="{{ producto.stock }}" name="cantidad" value="1"></div>
+        <div class="col-9"><button class="fc-btn w-100" {% if producto.stock == 0 %}disabled{% endif %}><i class="fas fa-cart-plus me-1"></i>Agregar al carrito</button></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+{% if relacionados %}
+<h2 class="h4 fc-page-title mb-3">Tambien podria interesarte</h2>
+<div class="row g-3">
+  {% for item in relacionados %}
+    <div class="col-sm-6 col-lg-3"><a class="fc-card d-block p-3 h-100 text-dark fw-bold" href="{% url 'producto_detalle' item.id %}">{{ item.nombre_producto }}<span class="d-block text-success mt-2">${{ item.precio|floatformat:0 }}</span></a></div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

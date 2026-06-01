@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Mis compras | Full Cars{% endblock %}
+{% block content %}
+<div class="fc-section-label">Historial personal</div>
+<h1 class="fc-page-title mb-4">Mis compras</h1>
+{% for compra in compras %}
+<article class="fc-card p-4 mb-3">
+  <div class="d-flex flex-wrap justify-content-between gap-2">
+    <div><strong>Compra #{{ compra.id }}</strong><div class="small fc-muted">{{ compra.fecha_compra|date:'d/m/Y H:i' }}</div></div>
+    <div><span class="fc-badge {% if compra.estado_compra == 'confirmada' %}fc-badge-ok{% elif compra.estado_compra == 'cancelada' %}fc-badge-off{% else %}fc-badge-low{% endif %}">{{ compra.get_estado_compra_display }}</span></div>
+    <strong class="text-success">${{ compra.total|floatformat:0 }}</strong>
+  </div>
+  <div class="small mt-3">{% for detalle in compra.detalles.all %}<span class="me-3">{{ detalle.cantidad }} x {{ detalle.nombre_producto }}</span>{% endfor %}</div>
+</article>
+{% empty %}
+<section class="fc-card p-5 text-center"><h2 class="h5 fc-page-title">Aun no registras compras</h2><a class="fc-btn d-inline-block mt-2" href="{% url 'index' %}">Ver catalogo</a></section>
+{% endfor %}
+{% endblock %}

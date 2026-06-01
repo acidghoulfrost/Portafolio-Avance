@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Ingresar | Full Cars{% endblock %}
+{% block content %}
+<section class="fc-card fc-form p-4 p-md-5 mx-auto" style="max-width:440px">
+  <div class="text-center mb-4">
+    <i class="fas fa-car-side fa-3x text-success mb-3"></i>
+    <h1 class="h3 fc-page-title">Iniciar sesion</h1>
+    <p class="fc-muted mb-0">Accede a tus compras y continua tu pedido.</p>
+  </div>
+  {% if form.errors %}
+    <div class="alert alert-danger small">Usuario o contrasena incorrectos. Revisa tus datos.</div>
+  {% endif %}
+  <form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label class="form-label fw-bold" for="id_username">Usuario</label>
+      <input id="id_username" name="username" required autofocus>
+    </div>
+    <div class="mb-3">
+      <label class="form-label fw-bold" for="id_password">Contrasena</label>
+      <input id="id_password" type="password" name="password" required>
+    </div>
+    {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+    <button class="fc-btn w-100" type="submit">Ingresar</button>
+  </form>
+  <div class="d-flex justify-content-between gap-2 mt-3 small">
+    <a class="text-success fw-bold" href="{% url 'registro' %}">Crear cuenta</a>
+    <a class="text-success fw-bold" href="{% url 'password_reset' %}">Olvide mi contrasena</a>
+  </div>
+</section>
+{% endblock %}
